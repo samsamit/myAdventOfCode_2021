@@ -1,7 +1,7 @@
 file1 = open('diagData.txt', 'r')
 Lines = file1.readlines()
 
-data = []
+data: list[list] = []
 for d in Lines:
     binArr = []
     for char in d:
@@ -11,12 +11,14 @@ for d in Lines:
             pass
     data.append(binArr)
 
+
 # make arrays for each bit index
-indexArr = [[] for i in range(len(data[0]))]
-for bitArr in data:
-    for i in range(len(bitArr)):
-        indexArr[i].append(bitArr[i])
-        pass
+def getBitIndexArray(data):
+    indexArr = [[] for i in range(len(data[0]))]
+    for bitArr in data:
+        for i in range(len(bitArr)):
+            indexArr[i].append(bitArr[i])
+    return indexArr
 
 
 def isCommonBit1(bitArr):
@@ -27,7 +29,6 @@ def binListToInt(binList):
     return int("".join(str(x) for x in binList), 2)
 
 
-# Part1
 # # get the most significant and not
 # gamma = []
 # epsilon = []
@@ -45,30 +46,39 @@ def binListToInt(binList):
 # epsilonInt = binListToInt(epsilon)
 # print(f'gam: {gammaInt}, eps: {epsilonInt}')
 # print(f'powerConsumption: {gammaInt * epsilonInt}')
-
 # Part 2
-find = True
-i = 0
-inspectArr = indexArr
 
-
-def removeWithBit(bit, bitIndex, arr):
-    newArr = arr
+def getSignificantBitIndexs(bit, bitIndex, arr):
+    delCount = 0
+    newArr = []
     for i in range(len(arr)):
-        print(f'{arr[bitIndex]} == {bit}')
         if arr[i][bitIndex] == bit:
-            del newArr[bitIndex]
-
+            newArr.append(arr[i])
+            delCount += 1
     return newArr
 
 
-for i in range(len(indexArr)):
-    if isCommonBit1(indexArr[i]):
-        inspectArr = removeWithBit(0, i, inspectArr)
-    else:
-        inspectArr = removeWithBit(1, i, inspectArr)
+oxygenData = [*data]
+co2Data = [*data]
 
-    print(len(inspectArr))
-    if len(inspectArr) == 1:
-        print(inspectArr)
-    i += 1
+
+for i in range(len(data[0])):
+    if len(oxygenData) > 1:
+        indexArray = list(map(lambda x: x[i], oxygenData))
+        if float(indexArray.count(0)) > (len(indexArray) / 2):
+            oxygenData = getSignificantBitIndexs(0, i, oxygenData)
+        else:
+            oxygenData = getSignificantBitIndexs(1, i, oxygenData)
+
+    if len(co2Data) > 1:
+        indexArray = list(map(lambda x: x[i], co2Data))
+        if float(indexArray.count(0)) > (len(indexArray) / 2):
+            co2Data = getSignificantBitIndexs(1, i, co2Data)
+        else:
+            co2Data = getSignificantBitIndexs(0, i, co2Data)
+
+oxygenRating = binListToInt(oxygenData[0])
+co2Rating = binListToInt(co2Data[0])
+print(oxygenRating)
+print(co2Rating)
+print(oxygenRating * co2Rating)

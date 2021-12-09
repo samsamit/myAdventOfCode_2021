@@ -1,4 +1,3 @@
-from os import remove
 
 
 file1 = open("segmentData.txt", "r")

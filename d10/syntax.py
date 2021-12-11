@@ -30,17 +30,14 @@ def close(char):
         return False
 
 
-lines = [
-    '[({(<(())[]>[[{[]{<()<>>',
-    '[(()[<>])]({[<{<<[]>>(',
-    '(((({<>}<{<{<>}{[]{[]{}',
-    '{<[[]]>}<{[{[{[]{()[[[]',
-    '<{([{{}}[<[[[<>{}]]]>[]]'
-]
+# lines = [
+# '{([(<[}>{{[('
+# ]
 errors = []
+forDel = []
 openers = []
-for line in lines:
-    sLine = line.strip()
+for i in range(len(lines)):
+    sLine = lines[i].strip()
     opens = []
     for char in sLine:
         if char == "(":
@@ -54,8 +51,18 @@ for line in lines:
         else:
             if not close(char):
                 errors.append(char)
+                forDel.append(i)
                 break
     openers.append(opens)
+
+print(f'forDel: {forDel}')
+newOpeners = []
+for i in range(len(openers)):
+    print(f'count:  {i} == {forDel.count(i)}')
+    if forDel.count(i) == 0:
+        newOpeners.append(openers[i])
+
+openers = newOpeners
 
 # part 1
 # print(errors)

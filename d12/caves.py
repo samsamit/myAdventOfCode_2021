@@ -44,13 +44,15 @@ exploring = True
 nextCaves = []
 paths = []
 endPaths = []
+doubles = []
 for cave in getCaves('start'):
     nextCaves.append(cave)
     paths.append('start,' + cave)
-
+    doubles.append(False)
 while exploring:
     newPaths = []
     newNexts = []
+    newDoubles = []
     end = 0
     for path in paths:
         nextCave = path[-2:]
@@ -59,13 +61,19 @@ while exploring:
             end += 1
         else:
             for newcave in newcaves:
-                if isUpper(newcave) or path.count(newcave) == 0:
+                if isUpper(newcave) or path.count(newcave) == 0 or (path.count(newcave) == 1 and not doubles[i]):
                     if newcave == 'end':
                         endPaths.append(path + ',' + newcave)
                     newPaths.append(path + ',' + newcave)
+                    if path.count(newcave) == 1:
+                        newDoubles.append(True)
+                    else:
+                        newDoubles.append(doubles[i])
         if end == len(paths):
             exploring = False
     paths = newPaths
+    doubles = newDoubles
+    print(len(paths), len(doubles))
     if not exploring:
         break
 

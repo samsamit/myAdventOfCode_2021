@@ -6,27 +6,37 @@ caves = []
 for line in lines:
     sline = line.strip()
     a, b = sline.split('-')
-    found1, found2 =  False, False
+    found1, found2 = False, False
     for i in range(len(caves)):
         if caves[i][0] == a:
-            caves[i][1].append(b)
+            if b != 'start':
+                caves[i][1].append(b)
             found1 = True
     for i in range(len(caves)):
         if caves[i][0] == b:
-            caves[i][1].append(a)
+            if a != 'start':
+                caves[i][1].append(a)
             found2 = True
             break
     if not found1:
-        caves.append([a, [b]])
+        if b != 'start':
+            caves.append([a, [b]])
+        else:
+            caves.append([a, []])
     if not found2:
-        caves.append([b, [a]])
+        if a != 'start':
+            caves.append([b, [a]])
+        else:
+            caves.append([b, []])
 
-for x in caves:   
+for x in caves:
     print(x)
+
 
 def isUpper(string):
     upperStr = string.upper()
     return string == upperStr
+
 
 def getCaves(name):
     for cave in caves:
@@ -34,47 +44,41 @@ def getCaves(name):
             return cave[1]
     return None
 
+
 def getPath(cavePath, paths):
     for i in range(len(paths)):
         if paths[i] == cavePath:
             return i
     return None
 
-exploring = True
-nextCaves = []
-paths = []
-endPaths = []
-doubles = []
-for cave in getCaves('start'):
-    nextCaves.append(cave)
-    paths.append('start,' + cave)
-    doubles.append(False)
-while exploring:
-    newPaths = []
-    newNexts = []
-    newDoubles = []
-    end = 0
-    for path in paths:
-        nextCave = path[-2:]
-        newcaves = getCaves(nextCave)
-        if newcaves is None:
-            end += 1
-        else:
-            for newcave in newcaves:
-                if isUpper(newcave) or path.count(newcave) == 0 or (path.count(newcave) == 1 and not doubles[i]):
-                    if newcave == 'end':
-                        endPaths.append(path + ',' + newcave)
-                    newPaths.append(path + ',' + newcave)
-                    if path.count(newcave) == 1:
-                        newDoubles.append(True)
-                    else:
-                        newDoubles.append(doubles[i])
-        if end == len(paths):
-            exploring = False
-    paths = newPaths
-    doubles = newDoubles
-    print(len(paths), len(doubles))
-    if not exploring:
-        break
 
-print(len(endPaths))
+def explorePath(path, connections):
+    if path[-1] == 'end':
+        yield path
+    else:
+        for nextCave in connections:
+            if isUpper(nextCave) or nextCave not in path:
+                newPath = [*path, nextCave]
+                newNeighbours = getCaves(nextCave)
+                yield from explorePath(newPath, newNeighbours)
+
+
+def explorePatfDoubleSingle(path, connections):
+    if path[-1] == 'end':
+        yield path
+    else:
+        for nextCave in connections:
+            if isUpper(nextCave) or nextCave not in path:
+                newPath = [*path, nextCave]
+                newNeighbours = getCaves(nextCave)
+                yield from explorePatfDoubleSingle(newPath, newNeighbours)
+            elif not isUpper(nextCave) and nextCave != 'start':
+                newPath = [*path, nextCave]
+                newNeighbours = getCaves(nextCave)
+                yield from explorePath(newPath, newNeighbours)
+
+
+paths = list(explorePatfDoubleSingle(['start'], getCaves('start')))
+print(type(paths))
+
+print(len(paths))
